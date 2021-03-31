@@ -3,11 +3,16 @@
 import argparse # dunder thing
 import re # readData()
 import glob
+import spacy
+import nltk
 
 projURL = "https://github.com/yut4916/cs5293sp21-project1.git"
 
+nlp = spacy.load("en_core_web_sm")
+
 def main(docList):
     print("Initiating Project 1...")
+    print(docList)
 
     args = parser.parse_args()
     
@@ -16,6 +21,11 @@ def main(docList):
         doc = open(doc_i, "r")
 
         print(doc.read())
+        
+        doc = nlp(doc)
+
+        for token in doc:
+            print(token.text)
 
         #if args.names: # then redact names
         #    redactNames(doc)
@@ -37,7 +47,7 @@ def main(docList):
 def redactNames(doc):
     print("Redacting names...")
 
-
+    # Replace any/all characters within a name with the full block (█) character 
 
     print("Names have been redacted")
 
@@ -94,7 +104,6 @@ if __name__ == '__main__':
     args = parser.parse_args()
     if args.input:
         docList = glob.glob(args.input)
-        print(docList)
         main(docList)
 
 

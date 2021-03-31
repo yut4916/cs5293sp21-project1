@@ -9,7 +9,14 @@ To run: pipenv run python redactor.py --input '\*.txt' \
                     --output 'files/' \
                     --stats stderr
 
-## Assumptions
+## Assumptions/Definitions
+Name:
+* A name is
+
+Gender:
+* Includes pronouns: he, him, his, she, her, hers, they, them, theirs
+* Family descriptors: brother, sister, mother/mom/mommy, father/dad/daddy, aunt, uncle, grandpa, grandma, son, daughter
+* Titles: Mr., Ms., Mrs., Miss 
 
 
 ## Function Descriptions
@@ -27,6 +34,11 @@ To run: pipenv run python redactor.py --input '\*.txt' \
 	+ I've included some print statements at the beginning and end of each function, so I can see when they're running. 
 	+ I'll need to use the user-supplied glob to open the text file(s), which I can do with the open() function.
 		- note: will apparently need to close the file when I'm done with it! (use fileVariable.close())
+	+ So far, when I run it, it seems to be working just fine. I guess now I need to figure out how I'm going to do this redacting business?
+4. Conceptualizing a general solution
+	+ okay, so I know I'm going to need to use spacy/nltk. I guess I'll want to tokenize the text files, do some standardization techniques from class/the textbook, and then compare the cleaned text to some sort of dictionary for each of my tags.
+		- need to figure out if those dictionaries exist within spacy/nltk or if I'm supposed to create/define them myself
+	+ reading some basic [spacy 101](https://spacy.io/usage/spacy-101), i think that's the one I'm gonna wanna go with (at least to start).
 
 ### General Notes
 * sudo apt install pipenv -- used this command to give me permission to install pipenv
