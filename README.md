@@ -3,7 +3,8 @@ Written by Katy Yut
 March 31, 2021
 
 ## How to Install and Use This Package
-To run: pipenv run python redactor.py --input '\*.txt' \
+To run: first, activate virtual environment by running "source .env/bin/activate". Then, run the following:
+pipenv run python redactor.py --input '\*.txt' \
                     --names --dates --phones \
                     --concept 'kids' \
                     --output 'files/' \
@@ -18,6 +19,7 @@ Gender:
 * Family descriptors: brother, sister, mother/mom/mommy, father/dad/daddy, aunt, uncle, grandpa, grandma, son, daughter
 * Titles: Mr., Ms., Mrs., Miss 
 
+1. Input files will be in .txt format
 
 ## Function Descriptions
 
