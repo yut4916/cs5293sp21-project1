@@ -20,12 +20,37 @@ Token.set_extension("is_curse", getter=curse_getter)
 # Define patterns for matching
 phonesPattern = [{"IS_DIGIT": True, "OP": "+"}]
 
-def replace_ner(mytxt):
-    clean_text = mytxt
-    doc = nlp(mytxt)
+def redactEntities(txt): # txt = string
+    # Named Entity Recognition
+    # doc.ents = named entities https://spacy.io/usage/linguistic-features
+    redactedTxt = txt
+    doc = nlp(txt)
+    
+    # Keep track of stats
+    args = parser.parse_args()
+    statsDir = args.stats
+    stats = []
+    
     for ent in reversed(doc.ents):
-        clean_text = clean_text[:ent.start_char] +ent.label_ + clean_text[ent.end_char:]
-    return clean_text
+        # create a sequence of blocks as long as the text to be redacted.
+        first = ent.start_char # index of start of redaction
+        last = ent.end_char # index of end of redaction
+        sharpie = "█"*(last - first)
+        
+        # new text is everything before the redaction plus the blocks plus everything after the redaction.
+        # splice using colon
+        redactedTxt = redactedTxt[:first] + sharpie + redactedTxt[last:]
+
+        # be sure to keep track of what we're redacting
+        removed = ent.label_
+        stats.append(removed)
+    
+    if args.stats:
+        with open(statsDir, "a") as statsFile:
+            statsFile.writelines("%s\n" % stat for stat in stats)
+        statsFile.close()
+
+    return redactedTxt
                              
 
 def main(docList):
@@ -34,18 +59,19 @@ def main(docList):
 
     args = parser.parse_args()
     
-    statsDir = args.stats
-
+    if args.stats:
+        statsDir = args.stats
+        statsFile = open(statsDir, "w")
+    
     for doc_i in docList:
-
         doc = open(doc_i, "r")
         doc = doc.read()
         print(doc)
         print(type(doc))
         #doc = normalize(doc)
 
-        # Test replace_ner() function thing
-        redacted = replace_ner(doc)
+        # Redact using named entities
+        redacted = redactEntities(doc)
         print(redacted)
 
 
@@ -64,8 +90,8 @@ def main(docList):
         #if args.concept: # then redact all sentences relating to the concept provided
         #    redactConcepts(doc, concepts)
 
-        if args.curses: # then redact all vowels in curse words
-            redactCurses(doc)
+        #if args.curses: # then redact all vowels in curse words
+        #    doc = redactCurses(nlp(doc))
 
         #doc.close()
 
@@ -137,14 +163,19 @@ def redactCurses(doc):
     print("Redacting curse words...")
     
     curseIndex = []
+    cleanDoc = ""
 
     for token in doc:
         if token._.is_curse:
-            #print(re.sub(r'[aeiou]+', "*", token))
-            print(token.i)
-            curseIndex.append(token.i)
-    
+            tokenIndex = token.i
+            curseIndex.append(tokenIndex)
+            scrubbed = re.sub(r'[aeiou]+', "*", doc[tokenIndex].text)
+            cleanDoc = cleanDoc + " " + scrubbed
+        else:
+            cleanDoc = cleanDoc + " " + token.text
+    print(cleanDoc)
     print("Curse words have been redacted")
+    return nlp(cleanDoc)
 
 if __name__ == '__main__':
     epilog = "\nFor full information, see:\n" + projURL

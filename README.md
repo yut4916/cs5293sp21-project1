@@ -41,6 +41,13 @@ Gender:
 	+ okay, so I know I'm going to need to use spacy/nltk. I guess I'll want to tokenize the text files, do some standardization techniques from class/the textbook, and then compare the cleaned text to some sort of dictionary for each of my tags.
 		- need to figure out if those dictionaries exist within spacy/nltk or if I'm supposed to create/define them myself
 	+ reading some basic [spacy 101](https://spacy.io/usage/spacy-101), i think that's the one I'm gonna wanna go with (at least to start).
+5. Lots of different directions to go in. Some I have been exploring:
+	+ best so far: Named Entity Recognition (NER) using .ents on spacy doc objects
+	+ Token from spacy.tokens
+	+ Matcher from spacy.matcher
+	+ regex - issues w/ spacy token type and string compatibility
+6. I figured out how to set up the stats file, so there's that. 
+	+ it still definitely needs to be cleaned/processed though - maybe that should be done before i write it to a .txt....
 
 ### General Notes
 * sudo apt install pipenv -- used this command to give me permission to install pipenv
@@ -59,3 +66,7 @@ Throughout the project my dad, Greg Yut, helped me understand the nuts and bolts
 
 While troubleshooting, I used the following resources:
 - [Python File Open](https://www.w3schools.com/python/python_file_open.asp)
+- [Redact Name Entities With SpaCy](https://predictivehacks.com/redact-name-entities-with-spacy/)
+- [Python File Write](https://www.w3schools.com/python/python_file_write.asp)
+- [Reading and Writing Lists to a File in Python](https://stackabuse.com/reading-and-writing-lists-to-a-file-in-python/)
+- [Removing Stop Words from Strings in Python](https://stackabuse.com/removing-stop-words-from-strings-in-python/#usingthespacylibrary)
