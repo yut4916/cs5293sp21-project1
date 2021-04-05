@@ -19,7 +19,8 @@ Gender:
 * Family descriptors: brother, sister, mother/mom/mommy, father/dad/daddy, aunt, uncle, grandpa, grandma, son, daughter
 * Titles: Mr., Ms., Mrs., Miss 
 
-1. Input files will be in .txt format
+1. Input file(s) will be in .txt format
+2. The text will be in English
 
 ## Function Descriptions
 
@@ -48,6 +49,10 @@ Gender:
 	+ regex - issues w/ spacy token type and string compatibility
 6. I figured out how to set up the stats file, so there's that. 
 	+ it still definitely needs to be cleaned/processed though - maybe that should be done before i write it to a .txt....
+7. Found a good regex for matching phone numbers on a stack overflow thread 
+	+ How I found it: r'^(\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$'
+	+ After my minor tweaks: r'(\+\d{1,2}\s)?(\(?\d{3}\)?[\s.-]?)?\d{3}[\s.-]?\d{4}'
+8. Besides plain ol' regex for the phone numbers, I've been making decent headway with the named entity recognition technique. It works better by including an if statement to redact by each type of entity (person, date, organization, location, etc) instead of anything that registers as an entity
 
 ### General Notes
 * sudo apt install pipenv -- used this command to give me permission to install pipenv
@@ -70,3 +75,4 @@ While troubleshooting, I used the following resources:
 - [Python File Write](https://www.w3schools.com/python/python_file_write.asp)
 - [Reading and Writing Lists to a File in Python](https://stackabuse.com/reading-and-writing-lists-to-a-file-in-python/)
 - [Removing Stop Words from Strings in Python](https://stackabuse.com/removing-stop-words-from-strings-in-python/#usingthespacylibrary)
+- [Regular expression to match standard 10 digit phone number](https://stackoverflow.com/questions/16699007/regular-expression-to-match-standard-10-digit-phone-number/16699507#16699507)
