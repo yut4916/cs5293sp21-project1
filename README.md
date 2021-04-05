@@ -76,3 +76,4 @@ While troubleshooting, I used the following resources:
 - [Reading and Writing Lists to a File in Python](https://stackabuse.com/reading-and-writing-lists-to-a-file-in-python/)
 - [Removing Stop Words from Strings in Python](https://stackabuse.com/removing-stop-words-from-strings-in-python/#usingthespacylibrary)
 - [Regular expression to match standard 10 digit phone number](https://stackoverflow.com/questions/16699007/regular-expression-to-match-standard-10-digit-phone-number/16699507#16699507)
+- [Named Entity Recognition NER using spaCy | NLP | Part 4](https://towardsdatascience.com/named-entity-recognition-ner-using-spacy-nlp-part-4-28da2ece57c6)

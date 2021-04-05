@@ -1,8 +1,20 @@
-PERSON
-PERSON
-PERSON
-PERSON
-PERSON
-DATE
-DATE
-DATE
+
+Summary of redactions for document 'stats.txt':
+Total names redacted: 0
+Total phone numbers redacted: 0
+Total dates redacted: 0
+
+Summary of redactions for document 'myFakeInput.txt':
+Total names redacted: 5
+Total phone numbers redacted: 2
+Total dates redacted: 3
+
+Summary of redactions for document 'moreTests.txt':
+Total names redacted: 9
+Total phone numbers redacted: 0
+Total dates redacted: 4
+
+Summary of redactions for document 'requirements.txt':
+Total names redacted: 0
+Total phone numbers redacted: 0
+Total dates redacted: 0
