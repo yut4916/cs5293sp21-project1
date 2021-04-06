@@ -6,56 +6,10 @@ import glob
 import spacy
 from spacy.tokens import Doc, Span, Token
 from spacy.matcher import Matcher
+import requests
 
 # Global setup (idk if this is allowed)
 nlp = spacy.load("en_core_web_sm")
-
-def buildNLP():
-    # Define curse getter
-    curseWords = ["ass", "bitch", "cock", "crap", "cunt", "damn", "fuck", "hell", "piss", "shit", "slut", "twat", "whore"]    
-    cursePattern1 = [{"LEMMA": {"IN": curseWords}}]
-    # note: patterns 2-14 find regex match of each word in curseWords if has anything before or after
-    # also, i am absolutely certain there's a way to automate this replication, but i could not figure it out
-    cursePattern2 = [{"TEXT": {"REGEX": "\s?\S*" + curseWords[0] + "\S*\s?"}}]
-    cursePattern3 = [{"TEXT": {"REGEX": "\s?\S*" + curseWords[1] + "\S*\s?"}}]
-    cursePattern4 = [{"TEXT": {"REGEX": "\s?\S*" + curseWords[2] + "\S*\s?"}}]
-    cursePattern5 = [{"TEXT": {"REGEX": "\s?\S*" + curseWords[3] + "\S*\s?"}}]
-    cursePattern6 = [{"TEXT": {"REGEX": "\s?\S*" + curseWords[4] + "\S*\s?"}}]
-    cursePattern7 = [{"TEXT": {"REGEX": "\s?\S*" + curseWords[5] + "\S*\s?"}}]
-    cursePattern8 = [{"TEXT": {"REGEX": "\s?\S*" + curseWords[6] + "\S*\s?"}}]
-    cursePattern9 = [{"TEXT": {"REGEX": "\s?\S*" + curseWords[7] + "\S*\s?"}}]
-    cursePattern10 = [{"TEXT": {"REGEX": "\s?\S*" + curseWords[8] + "\S*\s?"}}]
-    cursePattern11 = [{"TEXT": {"REGEX": "\s?\S*" + curseWords[9] + "\S*\s?"}}]
-    cursePattern12 = [{"TEXT": {"REGEX": "\s?\S*" + curseWords[10] + "\S*\s?"}}]
-    cursePattern13 = [{"TEXT": {"REGEX": "\s?\S*" + curseWords[11] + "\S*\s?"}}]
-    cursePattern14 = [{"TEXT": {"REGEX": "\s?\S*" + curseWords[12] + "\S*\s?"}}]
-    
-    # Define patterns for matching
-    genderDict = ["he", "her", "hers", "herself", "him", "himself", "his", "she", "aunt", 
-            "brother", "brother-in-law", "daughter", "daughter-in-law", "father", "father-in-law", 
-            "granddaughter", "grandson", "half brother", "half sister", "husband", "mother", 
-            "mother-in-law", "nephew", "niece", "sister", "sister-in-law", "son", "son-in-law", 
-            "stepbrother", "stepdaughter", "stepfather", "stepmother", "stepsister", "stepson", 
-            "uncle", "wife", "boy", "man", "gentleman", "woman", "girl", "lady", 
-            "mr", "mrs", "ms", "miss", "sir", "ma'am", "girlfriend", "boyfriend"]
-    genderPattern = [{"LEMMA": {"IN": genderDict}}]
-    patterns = [{"label": "GENDER", "pattern": genderPattern},
-                {"label": "CURSE", "pattern": cursePattern1},
-                {"label": "CURSE", "pattern": cursePattern2},
-                {"label": "CURSE", "pattern": cursePattern3},
-                {"label": "CURSE", "pattern": cursePattern4},
-                {"label": "CURSE", "pattern": cursePattern5},
-                {"label": "CURSE", "pattern": cursePattern6},
-                {"label": "CURSE", "pattern": cursePattern7},
-                {"label": "CURSE", "pattern": cursePattern8},
-                {"label": "CURSE", "pattern": cursePattern9},
-                {"label": "CURSE", "pattern": cursePattern10},
-                {"label": "CURSE", "pattern": cursePattern11},
-                {"label": "CURSE", "pattern": cursePattern12},
-                {"label": "CURSE", "pattern": cursePattern13},
-                {"label": "CURSE", "pattern": cursePattern14}]
-    ruler = nlp.add_pipe("entity_ruler")
-    ruler.add_patterns(patterns)
 
 def main(docList):
     print("Initiating Project 1...")
@@ -105,7 +59,7 @@ def main(docList):
             #print(redacted)
 
         if args.concept: # then redact all sentences relating to the concept provided
-            redactedC = redactConcepts(txt, concepts)
+            redactedC = redactConcepts(redacted, args.concept)
 
         if args.curses: # then redact all vowels in curse words
             redacted = redactCurses(redacted)
@@ -119,6 +73,53 @@ def main(docList):
         txtRedacted.close()
 
     print("Redaction process complete. Check '.redacted' files for output and '" + args.stats + "' for redaction summary stats.")
+
+def buildNLP():
+    # Define curse getter
+    curseWords = ["ass", "bitch", "cock", "crap", "cunt", "damn", "fuck", "hell", "piss", "shit", "slut", "twat", "whore"]    
+    cursePattern1 = [{"LEMMA": {"IN": curseWords}}]
+    # note: patterns 2-14 find regex match of each word in curseWords if has anything before or after
+    # also, i am absolutely certain there's a way to automate this replication, but i could not figure it out
+    cursePattern2 = [{"TEXT": {"REGEX": "\s?\S*" + curseWords[0] + "\S*\s?"}}]
+    cursePattern3 = [{"TEXT": {"REGEX": "\s?\S*" + curseWords[1] + "\S*\s?"}}]
+    cursePattern4 = [{"TEXT": {"REGEX": "\s?\S*" + curseWords[2] + "\S*\s?"}}]
+    cursePattern5 = [{"TEXT": {"REGEX": "\s?\S*" + curseWords[3] + "\S*\s?"}}]
+    cursePattern6 = [{"TEXT": {"REGEX": "\s?\S*" + curseWords[4] + "\S*\s?"}}]
+    cursePattern7 = [{"TEXT": {"REGEX": "\s?\S*" + curseWords[5] + "\S*\s?"}}]
+    cursePattern8 = [{"TEXT": {"REGEX": "\s?\S*" + curseWords[6] + "\S*\s?"}}]
+    cursePattern9 = [{"TEXT": {"REGEX": "\s?\S*" + curseWords[7] + "\S*\s?"}}]
+    cursePattern10 = [{"TEXT": {"REGEX": "\s?\S*" + curseWords[8] + "\S*\s?"}}]
+    cursePattern11 = [{"TEXT": {"REGEX": "\s?\S*" + curseWords[9] + "\S*\s?"}}]
+    cursePattern12 = [{"TEXT": {"REGEX": "\s?\S*" + curseWords[10] + "\S*\s?"}}]
+    cursePattern13 = [{"TEXT": {"REGEX": "\s?\S*" + curseWords[11] + "\S*\s?"}}]
+    cursePattern14 = [{"TEXT": {"REGEX": "\s?\S*" + curseWords[12] + "\S*\s?"}}]
+    
+    # Define patterns for matching
+    genderDict = ["he", "her", "hers", "herself", "him", "himself", "his", "she", "aunt", 
+            "brother", "brother-in-law", "daughter", "daughter-in-law", "father", "father-in-law", 
+            "granddaughter", "grandson", "half brother", "half sister", "husband", "mother", 
+            "mother-in-law", "nephew", "niece", "sister", "sister-in-law", "son", "son-in-law", 
+            "stepbrother", "stepdaughter", "stepfather", "stepmother", "stepsister", "stepson", 
+            "uncle", "wife", "boy", "man", "gentleman", "woman", "girl", "lady", 
+            "mr", "mrs", "ms", "miss", "sir", "ma'am", "girlfriend", "boyfriend"]
+    genderPattern = [{"LEMMA": {"IN": genderDict}}]
+    patterns = [{"label": "GENDER", "pattern": genderPattern},
+                {"label": "CURSE", "pattern": cursePattern1},
+                {"label": "CURSE", "pattern": cursePattern2},
+                {"label": "CURSE", "pattern": cursePattern3},
+                {"label": "CURSE", "pattern": cursePattern4},
+                {"label": "CURSE", "pattern": cursePattern5},
+                {"label": "CURSE", "pattern": cursePattern6},
+                {"label": "CURSE", "pattern": cursePattern7},
+                {"label": "CURSE", "pattern": cursePattern8},
+                {"label": "CURSE", "pattern": cursePattern9},
+                {"label": "CURSE", "pattern": cursePattern10},
+                {"label": "CURSE", "pattern": cursePattern11},
+                {"label": "CURSE", "pattern": cursePattern12},
+                {"label": "CURSE", "pattern": cursePattern13},
+                {"label": "CURSE", "pattern": cursePattern14}]
+    ruler = nlp.add_pipe("entity_ruler")
+    ruler.add_patterns(patterns)
 
 def redactNames(txt):
     #print("Redacting names...")
@@ -236,10 +237,15 @@ def redactPhones(txt): # txt = string
     #print("Phone numbers have been redacted")
     return cleanTxt
 
-def redactConcepts(doc, concepts):
-    for c in concepts:
-        print("Redacting concept '" + c + "'...")
+def redactConcepts(doc, concept):
+    #for c in concepts:
+    #    print("Redacting concept '" + c + "'...")
+    print("Redacting concept")
 
+    # Use Merriam Webster thesaurus api to get related words?
+    requestURL = "https://www.dictionaryapi.com/api/v3/references/thesaurus/json/" + concept + "?key=ea746c43-1acc-4d64-afe2-38cd7b4d24a0"
+    response = requests.get(requestURL)
+    print(response)
 
     print("Concepts have been redacted")
 

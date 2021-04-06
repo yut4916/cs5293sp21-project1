@@ -60,6 +60,8 @@ Gender:
 	+ all of writing tests
 	+ flesh out/tidy up/complete README
 	+ very last - record demo video
+10. Successfully set up an API key with Merriam Webster, so hopefully I can figure out how to use that for the concepts flag. My plan is to grab a list of related words from their collegiate thesaurus.
+
 
 ### General Notes
 * sudo apt install pipenv -- used this command to give me permission to install pipenv
@@ -84,3 +86,6 @@ While troubleshooting, I used the following resources:
 - [Removing Stop Words from Strings in Python](https://stackabuse.com/removing-stop-words-from-strings-in-python/#usingthespacylibrary)
 - [Regular expression to match standard 10 digit phone number](https://stackoverflow.com/questions/16699007/regular-expression-to-match-standard-10-digit-phone-number/16699507#16699507)
 - [Named Entity Recognition NER using spaCy | NLP | Part 4](https://towardsdatascience.com/named-entity-recognition-ner-using-spacy-nlp-part-4-28da2ece57c6)
+- [How to use an API with Python (Beginner’s Guide)](https://rapidapi.com/blog/how-to-use-an-api-with-python/)
+
+
