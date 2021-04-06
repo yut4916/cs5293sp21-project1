@@ -73,6 +73,8 @@ def main(docList):
     buildNLP()
 
     for doc_i in docList:
+        print("Redacting " + doc_i + "...")
+
         # Write doc_i header for stats file 
         if args.stats:
             statsFile = open(args.stats, "a")
@@ -108,7 +110,7 @@ def main(docList):
         if args.curses: # then redact all vowels in curse words
             redacted = redactCurses(redacted)
         
-        print(redacted)
+        #print(redacted)
 
         # Write redacted files
         outDir = args.output
@@ -116,8 +118,10 @@ def main(docList):
             txtRedacted.write(redacted)
         txtRedacted.close()
 
+    print("Redaction process complete. Check '.redacted' files for output and '" + args.stats + "' for redaction summary stats.")
+
 def redactNames(txt):
-    print("Redacting names...")
+    #print("Redacting names...")
 
     # Named Entity Recognition
     # doc.ents = named entities https://spacy.io/usage/linguistic-features
@@ -148,12 +152,11 @@ def redactNames(txt):
             # splice using colon
             redactedTxt = redactedTxt[:first] + sharpie + redactedTxt[last:]
 
-    print("Names have been redacted")
-
+    #print("Names have been redacted")
     return redactedTxt
 
 def redactGenders(txt):
-    print("Redacting genders...")
+    #print("Redacting genders...")
     
     # Named Entity Recognition
     redactedTxt = txt
@@ -180,12 +183,11 @@ def redactGenders(txt):
             # splice using colon
             redactedTxt = redactedTxt[:first] + sharpie + redactedTxt[last:]
 
-    print("Genders have been redacted")
-    
+    #print("Genders have been redacted")
     return redactedTxt
 
 def redactDates(txt):
-    print("Redacting dates...")
+    #print("Redacting dates...")
     
     # Named Entity Recognition
     redactedTxt = txt
@@ -212,13 +214,11 @@ def redactDates(txt):
             # splice using colon
             redactedTxt = redactedTxt[:first] + sharpie + redactedTxt[last:]
 
-    print("Dates have been redacted")
-    
+    #print("Dates have been redacted")
     return redactedTxt
 
-
 def redactPhones(txt): # txt = string
-    print("Redacting phone numbers...")
+    #print("Redacting phone numbers...")
     sharpie = "█"*10
     subTuple = re.subn(r'(\+\d{1,2}\s)?(\(?\d{3}\)?[\s.-]?)?\d{3}[\s.-]?\d{4}', sharpie, txt)
     cleanTxt = subTuple[0]
@@ -233,7 +233,7 @@ def redactPhones(txt): # txt = string
             statsFile.write(stats)
         statsFile.close()
 
-    print("Phone numbers have been redacted")
+    #print("Phone numbers have been redacted")
     return cleanTxt
 
 def redactConcepts(doc, concepts):
@@ -244,9 +244,8 @@ def redactConcepts(doc, concepts):
     print("Concepts have been redacted")
 
 def redactCurses(txt):
-    print("Redacting curse words...")
+    #print("Redacting curse words...")
     
-
     # Named Entity Recognition
     redactedTxt = txt
     doc = nlp(txt)
@@ -272,7 +271,7 @@ def redactCurses(txt):
             last = ent.end_char # index of end of redaction
             redactedTxt = redactedTxt[:first] + scrubbed + redactedTxt[last:]
     
-    print("Curse words have been redacted")
+    #print("Curse words have been redacted")
     return redactedTxt
 
 if __name__ == '__main__':

@@ -1,4 +1,18 @@
 
+Summary of redactions for document 'stats.txt':
+Total names redacted: 0
+Total gendered terms redacted: 0
+Total phone numbers redacted: 0
+Total dates redacted: 0
+Total curse words redacted: 0
+
+Summary of redactions for document 'testPhoneFormats.txt':
+Total names redacted: 0
+Total gendered terms redacted: 0
+Total phone numbers redacted: 82
+Total dates redacted: 0
+Total curse words redacted: 0
+
 Summary of redactions for document 'myFakeInput.txt':
 Total names redacted: 5
 Total gendered terms redacted: 3
@@ -11,4 +25,11 @@ Total names redacted: 9
 Total gendered terms redacted: 33
 Total phone numbers redacted: 0
 Total dates redacted: 4
+Total curse words redacted: 0
+
+Summary of redactions for document 'requirements.txt':
+Total names redacted: 0
+Total gendered terms redacted: 0
+Total phone numbers redacted: 0
+Total dates redacted: 0
 Total curse words redacted: 0

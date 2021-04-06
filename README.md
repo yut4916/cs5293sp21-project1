@@ -55,6 +55,11 @@ Gender:
 8. Besides plain ol' regex for the phone numbers, I've been making decent headway with the named entity recognition technique. It works better by including an if statement to redact by each type of entity (person, date, organization, location, etc) instead of anything that registers as an entity
 	+ note: for the custom named entity from a word list of gendered terms, I'll probably need to do some text normalization beforehand, since my dictionary doesn't account for pluralities, etc
 	+ also, the named entities have a lot more categories than just the required names and dates. I could easily copy those functions and create additional flags for locations, organizations, etc
+9. Still left to do:
+	+ all of the concepts function
+	+ all of writing tests
+	+ flesh out/tidy up/complete README
+	+ very last - record demo video
 
 ### General Notes
 * sudo apt install pipenv -- used this command to give me permission to install pipenv
