@@ -9,17 +9,53 @@ from spacy.matcher import Matcher
 
 # Global setup (idk if this is allowed)
 nlp = spacy.load("en_core_web_sm")
-matcher = Matcher(nlp.vocab)
 
-# Define curse getter
-curseWords = ("ass", "bitch", "cock", "crap", "cunt", "damn", "fuck", "hell", "piss", "shit", "slut", "twat", "whore")    
-curse_getter = lambda token: token.text in curseWords
-curse_setter = lambda token: re.sub(r'[aeiou]+', "*", token.text)
-has_curse_getter = lambda obj: any([t.text in curseWords for t in obj])
-Token.set_extension("is_curse", getter=curse_getter, setter=curse_setter)
-Doc.set_extension("has_curse", getter=has_curse_getter)
-
-# Define patterns for matching
+def buildNLP():
+    # Define curse getter
+    curseWords = ["ass", "bitch", "cock", "crap", "cunt", "damn", "fuck", "hell", "piss", "shit", "slut", "twat", "whore"]    
+    cursePattern1 = [{"LEMMA": {"IN": curseWords}}]
+    # note: patterns 2-14 find regex match of each word in curseWords if has anything before or after
+    # also, i am absolutely certain there's a way to automate this replication, but i could not figure it out
+    cursePattern2 = [{"TEXT": {"REGEX": "\s?\S*" + curseWords[0] + "\S*\s?"}}]
+    cursePattern3 = [{"TEXT": {"REGEX": "\s?\S*" + curseWords[1] + "\S*\s?"}}]
+    cursePattern4 = [{"TEXT": {"REGEX": "\s?\S*" + curseWords[2] + "\S*\s?"}}]
+    cursePattern5 = [{"TEXT": {"REGEX": "\s?\S*" + curseWords[3] + "\S*\s?"}}]
+    cursePattern6 = [{"TEXT": {"REGEX": "\s?\S*" + curseWords[4] + "\S*\s?"}}]
+    cursePattern7 = [{"TEXT": {"REGEX": "\s?\S*" + curseWords[5] + "\S*\s?"}}]
+    cursePattern8 = [{"TEXT": {"REGEX": "\s?\S*" + curseWords[6] + "\S*\s?"}}]
+    cursePattern9 = [{"TEXT": {"REGEX": "\s?\S*" + curseWords[7] + "\S*\s?"}}]
+    cursePattern10 = [{"TEXT": {"REGEX": "\s?\S*" + curseWords[8] + "\S*\s?"}}]
+    cursePattern11 = [{"TEXT": {"REGEX": "\s?\S*" + curseWords[9] + "\S*\s?"}}]
+    cursePattern12 = [{"TEXT": {"REGEX": "\s?\S*" + curseWords[10] + "\S*\s?"}}]
+    cursePattern13 = [{"TEXT": {"REGEX": "\s?\S*" + curseWords[11] + "\S*\s?"}}]
+    cursePattern14 = [{"TEXT": {"REGEX": "\s?\S*" + curseWords[12] + "\S*\s?"}}]
+    
+    # Define patterns for matching
+    genderDict = ["he", "her", "hers", "herself", "him", "himself", "his", "she", "aunt", 
+            "brother", "brother-in-law", "daughter", "daughter-in-law", "father", "father-in-law", 
+            "granddaughter", "grandson", "half brother", "half sister", "husband", "mother", 
+            "mother-in-law", "nephew", "niece", "sister", "sister-in-law", "son", "son-in-law", 
+            "stepbrother", "stepdaughter", "stepfather", "stepmother", "stepsister", "stepson", 
+            "uncle", "wife", "boy", "man", "gentleman", "woman", "girl", "lady", 
+            "mr", "mrs", "ms", "miss", "sir", "ma'am", "girlfriend", "boyfriend"]
+    genderPattern = [{"LEMMA": {"IN": genderDict}}]
+    patterns = [{"label": "GENDER", "pattern": genderPattern},
+                {"label": "CURSE", "pattern": cursePattern1},
+                {"label": "CURSE", "pattern": cursePattern2},
+                {"label": "CURSE", "pattern": cursePattern3},
+                {"label": "CURSE", "pattern": cursePattern4},
+                {"label": "CURSE", "pattern": cursePattern5},
+                {"label": "CURSE", "pattern": cursePattern6},
+                {"label": "CURSE", "pattern": cursePattern7},
+                {"label": "CURSE", "pattern": cursePattern8},
+                {"label": "CURSE", "pattern": cursePattern9},
+                {"label": "CURSE", "pattern": cursePattern10},
+                {"label": "CURSE", "pattern": cursePattern11},
+                {"label": "CURSE", "pattern": cursePattern12},
+                {"label": "CURSE", "pattern": cursePattern13},
+                {"label": "CURSE", "pattern": cursePattern14}]
+    ruler = nlp.add_pipe("entity_ruler")
+    ruler.add_patterns(patterns)
 
 def main(docList):
     print("Initiating Project 1...")
@@ -32,6 +68,9 @@ def main(docList):
         statsDir = args.stats
         statsFile = open(statsDir, "w")
         statsFile.close()
+    
+    # Run functions to generate custom NLP
+    buildNLP()
 
     for doc_i in docList:
         # Write doc_i header for stats file 
@@ -43,16 +82,17 @@ def main(docList):
         # Open ith file
         txt = open(doc_i, "r")
         txt = txt.read()
-        doc = nlp(txt)
-        print("Original document:\n" + doc.text)
-        print(type(doc))
-
+        #doc = nlp(txt)
+        #print("Original document:\n" + doc.text)
+        #print(type(doc))
+        
+        redacted = txt # initialize
         if args.names: # then redact names
-            redacted = redactNames(txt)
+            redacted = redactNames(redacted)
 
         if args.genders: # then redact gender
-            redactedG = redactGenders(doc)
-            print(redactedG)
+            redacted = redactGenders(redacted)
+            #print(redacted)
 
         if args.phones: # then redact phone numbers
             redacted = redactPhones(redacted)
@@ -60,14 +100,21 @@ def main(docList):
         
         if args.dates: # then redact dates
             redacted = redactDates(redacted)
-            print(redacted)
+            #print(redacted)
 
         if args.concept: # then redact all sentences relating to the concept provided
             redactedC = redactConcepts(txt, concepts)
 
         if args.curses: # then redact all vowels in curse words
-            redactedX = redactCurses(redacted)
+            redacted = redactCurses(redacted)
+        
+        print(redacted)
 
+        # Write redacted files
+        outDir = args.output
+        with open(outDir + doc_i + ".redacted", "w") as txtRedacted:
+            txtRedacted.write(redacted)
+        txtRedacted.close()
 
 def redactNames(txt):
     print("Redacting names...")
@@ -105,19 +152,37 @@ def redactNames(txt):
 
     return redactedTxt
 
-def redactGenders(doc):
+def redactGenders(txt):
     print("Redacting genders...")
-
-    genderDict = ("he", "her", "hers", "herself", "him", "himself", "his", "she", "aunt", 
-            "brother", "brother-in-law", "daughter", "daughter-in-law", "father", "father-in-law", 
-            "granddaughter", "grandson", "half brother", "half sister", "husband", "mother", 
-            "mother-in-law", "nephew", "niece", "sister", "sister-in-law", "son", "son-in-law", 
-            "stepbrother", "stepdaughter", "stepfather", "stepmother", "stepsister", "stepson", 
-            "uncle", "wife", "boy", "man", "gentleman", "woman", "girl", "lady", 
-            "mr", "mrs", "ms", "miss", "sir", "ma'am", "girlfriend", "boyfriend")
+    
+    # Named Entity Recognition
+    redactedTxt = txt
+    doc = nlp(txt.lower())
+    
+    # Keep track of stats
+    args = parser.parse_args()
+    statsDir = args.stats
+    numRedactions = len([ent for ent in doc.ents if ent.label_ == "GENDER"])
+    stats = "Total gendered terms redacted: " + str(numRedactions) + "\n" 
+    if args.stats:
+        with open(statsDir, "a") as statsFile:
+            statsFile.write(stats)
+        statsFile.close()
+    
+    for ent in reversed(doc.ents):
+        if ent.label_ == "GENDER":
+            # create a sequence of blocks as long as the text to be redacted.
+            first = ent.start_char # index of start of redaction
+            last = ent.end_char # index of end of redaction
+            sharpie = "█"*(last - first)
+        
+            # new text is everything before the redaction plus the blocks plus everything after the redaction.
+            # splice using colon
+            redactedTxt = redactedTxt[:first] + sharpie + redactedTxt[last:]
 
     print("Genders have been redacted")
-
+    
+    return redactedTxt
 
 def redactDates(txt):
     print("Redacting dates...")
@@ -180,34 +245,33 @@ def redactConcepts(doc, concepts):
 
 def redactCurses(txt):
     print("Redacting curse words...")
+    
+
+    # Named Entity Recognition
     redactedTxt = txt
     doc = nlp(txt)
     
     # Keep track of stats
     args = parser.parse_args()
     statsDir = args.stats
-    stats = []
-    
-    for token in reversed(doc):
-        if token._.is_curse:
-            token._.set("is_curse")
-
-            tokenIndex = token.i
-            scrubbed = re.sub(r'[aeiou]+', "*", doc[tokenIndex].text)
-            with doc.retokenize() as retokenizer:
-                retokenizer.merge(doc[tokenIndex+1:])
-                redactedTxt = doc[0:tokenIndex].text + scrubbed + " " + doc[tokenIndex+1:].text
-
-            # be sure to keep track of what we're redacting
-            removed = token
-            stats.append(removed)
-    
+    numRedactions = len([ent for ent in doc.ents if ent.label_ == "CURSE"])
+    stats = "Total curse words redacted: " + str(numRedactions) + "\n" 
     if args.stats:
         with open(statsDir, "a") as statsFile:
-            statsFile.writelines("%s\n" % stat for stat in stats)
+            statsFile.write(stats)
         statsFile.close()
-
-    print(redactedTxt)
+    
+    for ent in reversed(doc.ents):
+        if ent.label_ == "CURSE":
+            # replace vowels with asterisks using regex
+            scrubbed = re.sub(r'[aeiou]+', "*", ent.text)
+        
+            # new text is everything before the redaction plus the blocks plus everything after the redaction.
+            # splice using colon
+            first = ent.start_char # index of start of redaction
+            last = ent.end_char # index of end of redaction
+            redactedTxt = redactedTxt[:first] + scrubbed + redactedTxt[last:]
+    
     print("Curse words have been redacted")
     return redactedTxt
 
@@ -221,78 +285,26 @@ if __name__ == '__main__':
     # Set up arguments
     parser.add_argument("-i", "--input", type=str, required=True,
                         help="Glob for valid text file(s)")
-    parser.add_argument("-n", "--names", type=bool)
-    parser.add_argument("-g", "--genders", type=bool)
-    parser.add_argument("-d", "--dates", type=bool)
-    parser.add_argument("-p", "--phones", type=bool)
-    parser.add_argument("-x", "--curses", type=bool)
-    parser.add_argument("-c", "--concept", type=str)
-    parser.add_argument("-o", "--output", type=str, 
+    parser.add_argument("-n", "--names", type=bool,
+                        help="Whether or not peoples' names should be redacted")
+    parser.add_argument("-g", "--genders", type=bool,
+                        help="Whether or not gendered terms should be redacted")
+    parser.add_argument("-d", "--dates", type=bool,
+                        help="Whether or not dates should be redacted")
+    parser.add_argument("-p", "--phones", type=bool,
+                        help="Whether or not phone numbers should be redacted")
+    parser.add_argument("-x", "--curses", type=bool,
+                        help="Whether or not curse words should be redacted")
+    parser.add_argument("-c", "--concept", type=str,
+                        help="Topic(s) for which to redact entire sentences")
+    parser.add_argument("-o", "--output", type=str, required=True, 
                         help="Directory to write redacted files to")
     parser.add_argument("-s", "--stats", type=str,
-                        help="Directory/file to which to write summary stats of redaction process")
+                        help="File and/or directory to which to write summary stats of redaction process")
     
     args = parser.parse_args()
     if args.input:
         docList = glob.glob(args.input)
         main(docList)
 
-
-# JUNK ==========================================================================================#
-def normalize(doc):
-    # Remove special charaters/whitespace
-    #doc = re.sub(r'[^a-zA-Z\s]', '', doc, re.I|re.A)
-
-    # Convert everything to lowercase
-    doc = doc.lower()
-    doc = doc.strip() # not sure what this does, but it's in the textbook
-    
-    # Tokenize
-    doc_sp = nlp(doc)
-    
-    # Remove stop words
-    #stop_words = nlp.Defaults.stop_words
-    #filtered_tokens = [token for token in doc_sp if token not in stop_words]
-
-    # Re-create normalized document from filtered tokens
-    #docNorm = ' '.join(filtered_tokens)
-    
-    #print(filtered_tokens)
-    #print(type(filtered_tokens))
-
-    # Return normalized document
-    return doc_sp
-
-
-def redactEntities(txt): # txt = string
-    # Named Entity Recognition
-    # doc.ents = named entities https://spacy.io/usage/linguistic-features
-    redactedTxt = txt
-    doc = nlp(txt)
-    
-    # Keep track of stats
-    args = parser.parse_args()
-    statsDir = args.stats
-    stats = []
-    
-    for ent in reversed(doc.ents):
-        # create a sequence of blocks as long as the text to be redacted.
-        first = ent.start_char # index of start of redaction
-        last = ent.end_char # index of end of redaction
-        sharpie = "█"*(last - first)
-        
-        # new text is everything before the redaction plus the blocks plus everything after the redaction.
-        # splice using colon
-        redactedTxt = redactedTxt[:first] + sharpie + redactedTxt[last:]
-
-        # be sure to keep track of what we're redacting
-        removed = ent.label_
-        stats.append(removed)
-    
-    if args.stats:
-        with open(statsDir, "a") as statsFile:
-            statsFile.writelines("%s\n" % stat for stat in stats)
-        statsFile.close()
-
-    return redactedTxt
 
