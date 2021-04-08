@@ -61,7 +61,16 @@ Gender:
 	+ flesh out/tidy up/complete README
 	+ very last - record demo video
 10. Successfully set up an API key with Merriam Webster, so hopefully I can figure out how to use that for the concepts flag. My plan is to grab a list of related words from their collegiate thesaurus.
-
+	+ okay, so I figured out how to parse through the JSON that the API request returns (pain in the ass, btw. no chance that's the best way to do it)
+	+ however, the related words list it's generating isn't great--even just tested on my small sample texts and a couple words, it's clearly not performing very well. some ideas to improve:
+		- lemmatize the words the thesaurus returns?
+		- pass the list of words through the thesaurus? would be a lot of requests and would get big fast. would also need to grab just the unique words.
+		- allow the user to supply an optional list of custom words added to the redaction dictionary
+	+ another thing: right now it's just redacting the specified words, like the other functions, not the whole sentence. need to figure that out too
+11. Still need to figure out:
+	+ how to accept multiple concept flags
+	+ would also like to change the other tags from boolean. should just be able to pass the tag with no additional input
+	+ requirements.txt file vs Pipfile
 
 ### General Notes
 * sudo apt install pipenv -- used this command to give me permission to install pipenv
@@ -87,5 +96,7 @@ While troubleshooting, I used the following resources:
 - [Regular expression to match standard 10 digit phone number](https://stackoverflow.com/questions/16699007/regular-expression-to-match-standard-10-digit-phone-number/16699507#16699507)
 - [Named Entity Recognition NER using spaCy | NLP | Part 4](https://towardsdatascience.com/named-entity-recognition-ner-using-spacy-nlp-part-4-28da2ece57c6)
 - [How to use an API with Python (Beginner’s Guide)](https://rapidapi.com/blog/how-to-use-an-api-with-python/)
-
+- [How to Iterate Through a Dictionary in Python](https://realpython.com/iterate-through-dictionary-python/)
+- [Working With JSON Data in Python](https://realpython.com/python-json/)
+- [MERRIAM-WEBSTER'S COLLEGIATE® THESAURUS](https://dictionaryapi.com/products/api-collegiate-thesaurus)
 
