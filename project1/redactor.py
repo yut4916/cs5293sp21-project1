@@ -1,4 +1,5 @@
 # to run: pipenv run python redactor.py --input '*.txt' \ --names --dates --phones \ --concept 'kids' \ --output 'files/' \ --stats stderr
+# pipenv run python project1/redactor.py --input "input/*.txt" -n True -d True -p True -g True -x True -c "family" -o "output/" -s "output/stats.txt"
 
 import argparse # dunder thing
 import re # regular expressions
@@ -7,6 +8,7 @@ import spacy
 from spacy.tokens import Doc, Span, Token
 from spacy.matcher import Matcher
 import requests
+import json
 
 # Global setup (idk if this is allowed)
 nlp = spacy.load("en_core_web_sm")
@@ -59,7 +61,7 @@ def main(docList):
             #print(redacted)
 
         if args.concept: # then redact all sentences relating to the concept provided
-            redactedC = redactConcepts(redacted, args.concept)
+            redacted = redactConcepts(redacted, args.concept)
 
         if args.curses: # then redact all vowels in curse words
             redacted = redactCurses(redacted)
@@ -68,14 +70,21 @@ def main(docList):
 
         # Write redacted files
         outDir = args.output
-        with open(outDir + doc_i + ".redacted", "w") as txtRedacted:
+        fileName = re.sub(r'(\S*/)*', "", doc_i) # strip off any directories - we just want the filename
+        with open(outDir + fileName + ".redacted", "w") as txtRedacted:
             txtRedacted.write(redacted)
         txtRedacted.close()
 
-    print("Redaction process complete. Check '.redacted' files for output and '" + args.stats + "' for redaction summary stats.")
+    print("Redaction process complete.") 
+    if args.stats:
+        print("Check '.redacted' files for output and '" + args.stats + "' for redaction summary stats.")
+    else:
+        print("Check '.redacted' files for output.")
 
 def buildNLP():
-    # Define curse getter
+    args = parser.parse_args()
+    
+    # Define curses
     curseWords = ["ass", "bitch", "cock", "crap", "cunt", "damn", "fuck", "hell", "piss", "shit", "slut", "twat", "whore"]    
     cursePattern1 = [{"LEMMA": {"IN": curseWords}}]
     # note: patterns 2-14 find regex match of each word in curseWords if has anything before or after
@@ -93,8 +102,8 @@ def buildNLP():
     cursePattern12 = [{"TEXT": {"REGEX": "\s?\S*" + curseWords[10] + "\S*\s?"}}]
     cursePattern13 = [{"TEXT": {"REGEX": "\s?\S*" + curseWords[11] + "\S*\s?"}}]
     cursePattern14 = [{"TEXT": {"REGEX": "\s?\S*" + curseWords[12] + "\S*\s?"}}]
-    
-    # Define patterns for matching
+
+    # Define gendered terms
     genderDict = ["he", "her", "hers", "herself", "him", "himself", "his", "she", "aunt", 
             "brother", "brother-in-law", "daughter", "daughter-in-law", "father", "father-in-law", 
             "granddaughter", "grandson", "half brother", "half sister", "husband", "mother", 
@@ -103,6 +112,38 @@ def buildNLP():
             "uncle", "wife", "boy", "man", "gentleman", "woman", "girl", "lady", 
             "mr", "mrs", "ms", "miss", "sir", "ma'am", "girlfriend", "boyfriend"]
     genderPattern = [{"LEMMA": {"IN": genderDict}}]
+        
+    # Initialize our dictionary of words related to concept
+    conceptDict = []
+    
+    if args.concept:
+        # Use Merriam Webster thesaurus api to get related words?
+        requestURL = "https://www.dictionaryapi.com/api/v3/references/thesaurus/json/" + args.concept + "?key=ea746c43-1acc-4d64-afe2-38cd7b4d24a0"
+        response = requests.get(requestURL, params={"format": "json"})
+        
+        # Add the specified concept to the list
+        conceptDict.append(args.concept)
+
+        # Check for valid response code
+        if response:
+            rawJSON = response.json()
+            #jsonString = json.dumps(rawJSON, indent=4)
+            data = json.loads(response.text)
+            # there's an easier way to do this, or the MW API format is dumb
+            dataDict = data[0]
+            defList = dataDict["def"]
+            sseqList = defList[0]["sseq"]
+            nest = sseqList[0][0][1]
+            for i in ["syn_list", "rel_list", "near_list"]:
+                for p in range(0, len(nest[i])):
+                    for w in range(0, len(nest[i][p])):
+                        conceptDict.append(nest[i][p][w]["wd"])
+        else:
+            print("API request returned an error. Try a different concept.")
+        
+    conceptPattern = [{"LEMMA": {"IN": conceptDict}}]
+
+    # Create named entities from custom patterns
     patterns = [{"label": "GENDER", "pattern": genderPattern},
                 {"label": "CURSE", "pattern": cursePattern1},
                 {"label": "CURSE", "pattern": cursePattern2},
@@ -117,7 +158,8 @@ def buildNLP():
                 {"label": "CURSE", "pattern": cursePattern11},
                 {"label": "CURSE", "pattern": cursePattern12},
                 {"label": "CURSE", "pattern": cursePattern13},
-                {"label": "CURSE", "pattern": cursePattern14}]
+                {"label": "CURSE", "pattern": cursePattern14},
+                {"label": "CONCEPT", "pattern": conceptPattern}]
     ruler = nlp.add_pipe("entity_ruler")
     ruler.add_patterns(patterns)
 
@@ -237,17 +279,39 @@ def redactPhones(txt): # txt = string
     #print("Phone numbers have been redacted")
     return cleanTxt
 
-def redactConcepts(doc, concept):
+def redactConcepts(txt, concept):
     #for c in concepts:
     #    print("Redacting concept '" + c + "'...")
-    print("Redacting concept")
+    #print("Redacting concept")
+    
+    # Named Entity Recognition
+    redactedTxt = txt
+    doc = nlp(txt.lower())
+    
+    # Keep track of stats
+    args = parser.parse_args()
+    statsDir = args.stats
+    numRedactions = len([ent for ent in doc.ents if ent.label_ == "CONCEPT"])
+    stats = "Total concepts redacted: " + str(numRedactions) + "\n" 
+    if args.stats:
+        with open(statsDir, "a") as statsFile:
+            statsFile.write(stats)
+        statsFile.close()
+    
+    for ent in reversed(doc.ents):
+        if ent.label_ == "CONCEPT":
+            # create a sequence of blocks as long as the text to be redacted.
+            first = ent.start_char # index of start of redaction
+            last = ent.end_char # index of end of redaction
+            sharpie = "█"*(last - first)
+        
+            # new text is everything before the redaction plus the blocks plus everything after the redaction.
+            # splice using colon
+            redactedTxt = redactedTxt[:first] + sharpie + redactedTxt[last:]
 
-    # Use Merriam Webster thesaurus api to get related words?
-    requestURL = "https://www.dictionaryapi.com/api/v3/references/thesaurus/json/" + concept + "?key=ea746c43-1acc-4d64-afe2-38cd7b4d24a0"
-    response = requests.get(requestURL)
-    print(response)
+    #print("Concepts have been redacted")
 
-    print("Concepts have been redacted")
+    return redactedTxt
 
 def redactCurses(txt):
     #print("Redacting curse words...")
