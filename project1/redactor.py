@@ -105,10 +105,10 @@ def buildNLP():
 
     # Define gendered terms
     genderDict = ["he", "her", "hers", "herself", "him", "himself", "his", "she", "aunt", 
-            "brother", "brother-in-law", "daughter", "daughter-in-law", "father", "father-in-law", 
-            "granddaughter", "grandson", "half brother", "half sister", "husband", "mother", 
-            "mother-in-law", "nephew", "niece", "sister", "sister-in-law", "son", "son-in-law", 
-            "stepbrother", "stepdaughter", "stepfather", "stepmother", "stepsister", "stepson", 
+            "brother", "brother-in-law", "daughter", "daughter-in-law", "father", "dad", "daddy", "father-in-law", 
+            "granddaughter", "grandson", "half brother", "half sister", "husband", "mother", "mom", "mommy", 
+            "mother-in-law", "nephew", "niece", "sister", "sister-in-law", "son", "son-in-law", "grandpa",
+            "stepbrother", "stepdaughter", "stepfather", "stepmother", "stepsister", "stepson", "grandma",
             "uncle", "wife", "boy", "man", "gentleman", "woman", "girl", "lady", 
             "mr", "mrs", "ms", "miss", "sir", "ma'am", "girlfriend", "boyfriend"]
     genderPattern = [{"LEMMA": {"IN": genderDict}}]
